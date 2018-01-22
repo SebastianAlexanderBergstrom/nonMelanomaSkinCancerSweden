@@ -4,7 +4,6 @@ formatDF<-function(dataFrame){
   # output: returns a data.frame with the formatting we want
   res <- dataFrame
   res <- res[1:(dim(res)[1]-1),]
-  #print(summary(res))
   colnames(res)<-c("Year","County","Age","Men","Women")
   
   # "Duplicate" the data frame, have to change the values
@@ -50,18 +49,18 @@ formatDF<-function(dataFrame){
   
   # Format the response variables
   # res$Men, res$Women var för sig verkar funka men så fort du skapar "response" skiter det sig
-  response <- c(res$Men,res$Women)
-  response <- gsub(",",".",response)
-  response <- gsub(" ","",response)
-  response <- as.numeric(response)
-
-  #res$Men <- gsub(",",".",res$Men)
-  #res$Men <- gsub(" ","",res$Men)
-  #res$Men <- as.numeric(res$Men)
-  #res$Women <- gsub(",",".",res$Women)
-  #res$Women <- gsub(" ","",res$Women)
-  #res$Women <- as.numeric(res$Women)
   #response <- c(res$Men,res$Women)
+  #response <- gsub(",",".",response)
+  #response <- gsub(" ","",response)
+  #response <- as.numeric(response)
+
+  res$Men <- gsub(",",".",res$Men)
+  res$Men <- gsub(" ","",res$Men)
+  res$Men <- as.numeric(res$Men)
+  res$Women <- gsub(",",".",res$Women)
+  res$Women <- gsub(" ","",res$Women)
+  res$Women <- as.numeric(res$Women)
+  response <- c(res$Men,res$Women)
   
   sexInd <- c(rep("Men",length(res$Men)),rep("Women",length(res$Women)))
   
