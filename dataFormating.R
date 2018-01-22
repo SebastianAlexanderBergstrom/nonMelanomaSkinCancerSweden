@@ -3,6 +3,8 @@ formatDF<-function(dataFrame){
   
   # output: returns a data.frame with the formatting we want
   res <- dataFrame
+  res <- res[1:(dim(res)[1]-1),]
+  #print(summary(res))
   colnames(res)<-c("Year","County","Age","Men","Women")
   
   # "Duplicate" the data frame, have to change the values
@@ -10,13 +12,23 @@ formatDF<-function(dataFrame){
   nonSex[nrow(nonSex)+1:nrow(nonSex),] <- nonSex
   
   # Convert "Year" to numeric
-  nonSex$Year <- as.numeric(nonSex$Year)
+  # Blir ett fel här som sedan kommer och hemsöker dig i funktionerna, ska ge talen 1970-2015 men ger 1-46
+  nonSex$Year <- as.numeric(nonSex$Year) + rep(1969,length(nonSex$Year))
+  #print(as.numeric(unique(nonSex$Year)))
   
   ageGroupFormat <- function(ageString){
+    #print(nchar(ageString)) #nchar(ageString) is NA
+    # Lägg till en if-sats som tar hand om "85+"
     if(nchar(ageString) == 2){
+      # For the youngest groups
       return(paste(substr(ageString,1,1),"-",substr(ageString,2,2),sep=""))
     }
+    if(substr(ageString,nchar(ageString),nchar(ageString)) == "+"){
+      # Think this should cover the "85+"-case
+      return(substr(ageString,1,3))
+    }
     else{
+      # For the other group
       return(paste(substr(ageString,1,2),"-",substr(ageString,3,5),sep=""))
     }
   }
@@ -28,7 +40,8 @@ formatDF<-function(dataFrame){
     if(countyString == "Riket"){
       return("Sweden")
     }
-    countyName <- strsplit(countyString,split=" ")[[1]][1]
+    # Remove eventual " län" in the county name
+    countyName <- substr(countyString,1,nchar(countyString)-4)
     # Remove the last "s", e.g. "Hallands" becomes "Halland"
     if(substr(countyName,nchar(countyName),nchar(countyName)) == "s"){
       countyName <- substr(countyName,1,nchar(countyName)-1)
@@ -40,11 +53,26 @@ formatDF<-function(dataFrame){
   nonSex$County <- as.factor(sapply(nonSex$County,countyFormat))
   
   # Format the response variables
+  # Blir fel någonstans längs de här raderna
+  #print(res$Men)
+  #print(res$Women)
+  # res$Men, res$Women var för sig verkar funka men så fort du skapar "response" skiter det sig
+  #response <- c(res$Men,res$Women)
+  #response <- gsub(",",".",response)
+  #response <- gsub(" ","",response)
+  #response <- as.numeric(response)
+
+  res$Men <- gsub(",",".",res$Men)
+  res$Men <- gsub(" ","",res$Men)
+  res$Men <- as.numeric(res$Men)
+  #print(res$Men)
+  res$Women <- gsub(",",".",res$Women)
+  res$Women <- gsub(" ","",res$Women)
+  res$Women <- as.numeric(res$Women)
+  #print(res$Women)
   response <- c(res$Men,res$Women)
-  response <- gsub(",",".",response)
-  response <- gsub(" ","",response)
-  response <- as.numeric(response)
-  
+
+    
   # Indicator for sex
   #men <- rep(1,nrow(res))
   #women <- rep(0,nrow(res))
@@ -54,5 +82,11 @@ formatDF<-function(dataFrame){
   sexInd <- c(rep("Men",length(res$Men)),rep("Women",length(res$Women)))
   
   result <- cbind(nonSex,sexInd,response)
+  colnames(result) <- c("years","counties","age","sex","cases")
   return(result)
 }
+
+# Testing the function
+#kek2 <- read.csv("C:/Users/Sebastian/Dropbox/Melt/Revised/rates.csv",header=F,sep=";",skip=2,encoding="UTF-8")
+#kek2 <- formatDF(kek2)
+# Något går fel med länens namn, det som ska bli "VästraGötaland" blir bara "Västra"
