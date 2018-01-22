@@ -36,7 +36,7 @@ formatDF<-function(dataFrame){
   nonSex$Age <- as.character(res$Age)
   nonSex$Age <- as.factor(sapply(nonSex$Age,ageGroupFormat))
   nonSex$Age <- toString(nonSex$Age)
-  #nonSex$Age <- as.factor(nonSex$Age)
+  nonSex$Age <- as.factor(nonSex$Age)
   
   countyFormat <- function(countyString){
     if(countyString == "Riket"){
