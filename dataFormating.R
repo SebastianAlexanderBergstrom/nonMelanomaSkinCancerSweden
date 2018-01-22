@@ -12,23 +12,19 @@ formatDF<-function(dataFrame){
   nonSex[nrow(nonSex)+1:nrow(nonSex),] <- nonSex
   
   # Convert "Year" to numeric
-  # Blir ett fel här som sedan kommer och hemsöker dig i funktionerna, ska ge talen 1970-2015 men ger 1-46
   nonSex$Year <- as.numeric(nonSex$Year) + rep(1969,length(nonSex$Year))
-  #print(as.numeric(unique(nonSex$Year)))
   
   ageGroupFormat <- function(ageString){
-    #print(nchar(ageString)) #nchar(ageString) is NA
-    # Lägg till en if-sats som tar hand om "85+"
     if(nchar(ageString) == 2){
       # For the youngest groups
       return(paste(substr(ageString,1,1),"-",substr(ageString,2,2),sep=""))
     }
     if(substr(ageString,nchar(ageString),nchar(ageString)) == "+"){
-      # Think this should cover the "85+"-case
+      # Covers the "85+"-case
       return(substr(ageString,1,3))
     }
     else{
-      # For the other group
+      # For the other groups
       return(paste(substr(ageString,1,2),"-",substr(ageString,3,5),sep=""))
     }
   }
@@ -36,16 +32,11 @@ formatDF<-function(dataFrame){
   nonSex$Age <- as.character(res$Age)
   nonSex$Age <- as.factor(sapply(nonSex$Age,ageGroupFormat))
   
-  # Temporarily added
-  #nonSex$Age <- factor(nonSex$Age,levels=levels(nonSex$Age))
-  #nonSex$Age <- toString(nonSex$Age)
-  #nonSex$Age <- as.factor(nonSex$Age)
-  
   countyFormat <- function(countyString){
     if(countyString == "Riket"){
       return("Sweden")
     }
-    # Remove eventual " län" in the county name
+    # Remove eventual " l�n" in the county name
     countyName <- substr(countyString,1,nchar(countyString)-4)
     # Remove the last "s", e.g. "Hallands" becomes "Halland"
     if(substr(countyName,nchar(countyName),nchar(countyName)) == "s"){
@@ -58,32 +49,20 @@ formatDF<-function(dataFrame){
   nonSex$County <- as.factor(sapply(nonSex$County,countyFormat))
   
   # Format the response variables
-  # Blir fel någonstans längs de här raderna
-  #print(res$Men)
-  #print(res$Women)
-  # res$Men, res$Women var för sig verkar funka men så fort du skapar "response" skiter det sig
-  #response <- c(res$Men,res$Women)
-  #response <- gsub(",",".",response)
-  #response <- gsub(" ","",response)
-  #response <- as.numeric(response)
-
-  res$Men <- gsub(",",".",res$Men)
-  res$Men <- gsub(" ","",res$Men)
-  res$Men <- as.numeric(res$Men)
-  #print(res$Men)
-  res$Women <- gsub(",",".",res$Women)
-  res$Women <- gsub(" ","",res$Women)
-  res$Women <- as.numeric(res$Women)
-  #print(res$Women)
+  # res$Men, res$Women var f�r sig verkar funka men s� fort du skapar "response" skiter det sig
   response <- c(res$Men,res$Women)
+  response <- gsub(",",".",response)
+  response <- gsub(" ","",response)
+  response <- as.numeric(response)
 
-    
-  # Indicator for sex
-  #men <- rep(1,nrow(res))
-  #women <- rep(0,nrow(res))
-  #sexInd <- c(men,women)
+  #res$Men <- gsub(",",".",res$Men)
+  #res$Men <- gsub(" ","",res$Men)
+  #res$Men <- as.numeric(res$Men)
+  #res$Women <- gsub(",",".",res$Women)
+  #res$Women <- gsub(" ","",res$Women)
+  #res$Women <- as.numeric(res$Women)
+  #response <- c(res$Men,res$Women)
   
-  # Can also use this
   sexInd <- c(rep("Men",length(res$Men)),rep("Women",length(res$Women)))
   
   result <- cbind(nonSex,sexInd,response)
