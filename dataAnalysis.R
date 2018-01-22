@@ -1,27 +1,26 @@
-# Provar att köra utan att skriva själva filen.
 library(curl)
-source("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/master/dataFormating.R")
-nonMelanomaRates <- formatDF(read.csv(curl("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/master/rates.csv"),
+source("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/Revised/dataFormating.R")
+nonMelanomaRates <- formatDF(read.csv(curl("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/Revised/rates.csv"),
                                       header=F,sep=";",skip=2,encoding="UTF-8"))
 
-nm2 <- read.csv(curl("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/master/rates.csv"),
-                header=F,sep=";",skip=2,encoding="UTF-8")
-
+# There's a problem with the age groups, without the three lines below
+# some age groups are not recognized when using e.g. timeDevelopment(), even
+# though they look the same. This is a duct tape fix which will have to be
+# taken care of later.
 lst<-c("0-4","5-9","10-14","15-19","20-24","25-29","30-34","35-39","40-44","45-49",
        "50-54","55-59","60-64","65-69","70-74","75-79","80-84","85+")
-age <- rep(factor(lst,levels=lst),2024)
-
+age <- rep(factor(lst,levels=lst),nrow(nonMelanomaRates)/length(lst))
 nonMelanomaRates$age <- age
 
 colorVector <- c("#0048BA","#4C2F27","#B0BF1A","#7CB9E8","#B284BE",
-                "#5D8AA8","#AF002A","#84DE02","#E32636","#C46210",
-                "#E52B50","#FF2800","#F19CBB","#AB274F","#3B7A57",
-                "#00C4B0","#FFBF00","#00FFFF","#E0218A","#000000","#88540B","#FFF600")
+                 "#5D8AA8","#AF002A","#84DE02","#E32636","#C46210",
+                 "#E52B50","#FF2800","#F19CBB","#AB274F","#3B7A57",
+                 "#00C4B0","#FFBF00","#00FFFF","#E0218A","#000000","#88540B","#FFF600")
 
 timeDevelopment<-function(dataFrame,county,ageGroup){
   # input: "dataFrame" is a data.frame containing our data, "county" is a county, 
   # "ageGroup" is an age group and "sex" is the sex we are interested in
-   
+  
   # output: Produces a plot which shows the development over time of the number of cases per 100 000 inhabitants
   # of non-melanoma cancer in a specified county for a certain sex and given age group using a given data.frame
   
@@ -35,6 +34,7 @@ timeDevelopment<-function(dataFrame,county,ageGroup){
 
 timeDevelopment(nonMelanomaRates,"Halland","85+")
 timeDevelopment(nonMelanomaRates,"Halland","50-54")
+timeDevelopment(nonMelanomaRates,"Halland","60-64")
 timeDevelopment(nonMelanomaRates,"Sweden","85+")
 timeDevelopment(nonMelanomaRates,"Skåne","85+")
 timeDevelopment(nonMelanomaRates,"Norrbotten","85+")
@@ -47,16 +47,12 @@ countyComparisonBarPlot <- function(dataFrame){
   subDataFrame <- subset(dataFrame,dataFrame$counties != "Sweden")
   subDataFrame$counties <- factor(subDataFrame$counties)
   
-  n <- length(levels(subDataFrame$counties))
-  groups <- c(numeric(n))
+  groups <- c(numeric(length(levels(subDataFrame$counties))))
   counties <- levels(subDataFrame$counties)
   
   for(i in 1:length(counties)){
     currentcounty <- subDataFrame[which(subDataFrame$counties == counties[i]),]
-    totalCount <- sum(currentcounty$cases)
-    average <- totalCount/nrow(currentcounty)
-    groups[i] <- average
-    #groups[i] <- median(currentcounty)
+    groups[i] <- mean(currentcounty$cases)
   }
   
   op <- par(mar = c(8,4,4,2) + 0.1)
@@ -72,7 +68,6 @@ countyComparisonBoxPlot <- function(dataFrame){
   subDataFrame$counties <- factor(subDataFrame$counties)
   regions <- levels(subDataFrame$counties)
   n <- length(regions)
-  m <- nrow(subDataFrame)
   tempVec <- c()
   for(i in 1:n){
     county <- regions[i]
@@ -93,19 +88,18 @@ percentageOfZeros <- length(zeros)/nrow(nonMelanomaRates)
 ageGroupComparison <- function(dataFrame,county,colVec){
   # input: "dataFrame" is data.frame containing our data, "county" is our county of interest and "colVec" is a vector
   # containing different colors.
-   
+  
   # output: Produces a bar plot showing the average number of cases of non-melanoma skin cancer during 1970-2015
   # in all our age groups in our given county.
   
   dataFrameSubset <- dataFrame[which(dataFrame$counties == county),]
-  n <- length(levels(dataFrameSubset$age))
-  groups <- c(numeric(n))
+  groups <- c(numeric(length(levels(dataFrameSubset$age))))
   ages <- levels(dataFrameSubset$age)
   
-  for(i in 1:length(ages)){
+  n <- length(ages)
+  for(i in 1:n){
     currentGroup <- dataFrameSubset[which(dataFrameSubset$age == ages[i]),]
-    currentCount <- median(currentGroup$cases)
-    groups[i] <- currentCount
+    groups[i] <- median(currentGroup$cases)
   }
   
   barplot(groups,col=colorVector,main=paste(county," Both sexes"),xlab="Age groups",
@@ -128,72 +122,57 @@ for(x in allCounties){
 ageGroupComparisonTime<-function(dataFrame,county,ageGroups,colVec){
   yearsHere <- rev(unique((dataFrame$years)))
   n <- length(ageGroups)
-  maxVek <- c(numeric(n))
-  minVek <- c(numeric(n))
-  for(i in 1:n){
-    regSpec <- dataFrame[which(dataFrame$counties == county & dataFrame$age == ageGroups[i]),]
-    men <- regSpec[which(regSpec$sex == "Men"),]
-    women <- regSpec[which(regSpec$sex == "Women"),]
-    totalNumber <- men$cases + women$cases
-    
-    maxVek[i] <- max(totalNumber)
-    minVek[i] <- min(totalNumber)
-  }
   
-  maxVal <- max(maxVek)
-  minVal <- min(minVek)
+  subDataFrame <- dataFrame[which(dataFrame$counties == county),]
+  men <- subDataFrame[which(subDataFrame$sex == "Men"),]
+  women <- subDataFrame[which(subDataFrame$sex == "Women"),]
+  maxVal <- max(c(men$cases,women$cases))
+  minVal <- min(c(men$cases,women$cases))
   
   plot(0,0,xlim=c(1970,2015),ylim=c(minVal,maxVal),main = paste("Both sexes, county: ",county),
        xlab = "Years",ylab="Number of cases per 100 000 inhabitants")
-  
+    
   for(i in 1:n){
-    regSpec <- dataFrame[which(dataFrame$counties == county & dataFrame$age == ageGroups[i]),]
-    men <- regSpec[which(regSpec$sex == "Men"),]
-    women <- regSpec[which(regSpec$sex == "Women"),]
-    totalNumber <- men$cases + women$cases
-    lines(yearsHere,rev(totalNumber),col=colVec[i])
+    menInAgeGroup <- men[which(men$age == ageGroups[i]),]
+    womenInAgeGroup <- women[which(women$age == ageGroups[i]),]
+    totalNumber2 <- menInAgeGroup$cases + womenInAgeGroup$cases
+    lines(yearsHere,rev(totalNumber2),col=colVec[i])
   }
   legend('topleft',legend=ageGroups,col=colVec,pch=1,lty=c(1,1))
 }
 
 ageGroupComparisonTime(nonMelanomaRates,"Blekinge",c("0-4","50-54","80-84"),colorVector)
+ageGroupComparisonTime(nonMelanomaRates,"Sweden",c("0-4","60-64","80-84"),colorVector)
 
-countyComparisonTime<-function(dataFrame,counties,ageGroup,colVec){
+countyComparisonTime<-function(dataFrame,comparisonCounties,ageGroup,colVec){
   # input: "dataFrame" is the data.frame we will be using, "counties" is a vector containing the
   # counties we will compare to one another, "ageGroup" is the age group we are interested in,
   # "sex" is the sex we are interested in and "colVec" is a vector of colors we will use to color
   # the lines
-   
+  
   # output: Produces a plot of lines, one plot for each county, between 1970 and 2015 for our given
   # age group and sex.
   yearsHere <- rev(unique((dataFrame$years)))
-  n <- length(counties)
-  maxVek <- c(numeric(n))
-  minVek <- c(numeric(n))
-  for(i in 1:n){
-    regSpec <- dataFrame[which(dataFrame$counties == counties[i] & dataFrame$age == ageGroup),]
-    men <- regSpec[which(regSpec$sex == "Men"),]
-    women <- regSpec[which(regSpec$sex == "Women"),]
-    totalNumber <- men$cases + women$cases
-    
-    maxVek[i] <- max(totalNumber)
-    minVek[i] <- min(totalNumber)
-  }
+  n <- length(comparisonCounties)
   
-  maxVal <- max(maxVek)
-  minVal <- min(minVek)
-  
+  subDataFrame <- dataFrame[which(dataFrame$age == ageGroup),]
+  subDataFrame <- subDataFrame[subDataFrame$counties %in% comparisonCounties,]
+  men <- subDataFrame[subDataFrame$sex == "Men",]$cases
+  women <- subDataFrame[subDataFrame$sex == "Women",]$cases
+
+  maxVal <- max(men+women)
+  minVal <- min(men+women)
   plot(0,0,xlim=c(1970,2015),ylim=c(minVal,maxVal),main = paste("Both sexes, age group: ",ageGroup),
        xlab = "Years",ylab="Number of cases per 100 000 inhabitants")
   
   for(i in 1:n){
-    regSpec <- dataFrame[which(dataFrame$counties == counties[i] & dataFrame$age == ageGroup),]
+    regSpec <- subDataFrame[subDataFrame$counties == comparisonCounties[i],]
     men <- regSpec[which(regSpec$sex == "Men"),]
     women <- regSpec[which(regSpec$sex == "Women"),]
     totalNumber <- men$cases + women$cases
     lines(yearsHere,rev(totalNumber),col=colVec[i])
   }
-  legend('topleft',legend=counties,col=colVec,pch=1,lty=c(1,1))
+  legend('topleft',legend=comparisonCounties,col=colVec,pch=1,lty=c(1,1))
 }
 
 countyComparisonTime(nonMelanomaRates,c("Halland", "Stockholm", "Skåne"),"85+",colorVector)
@@ -204,7 +183,7 @@ countyComparisonTime(nonMelanomaRates,c("Halland","Blekinge"),"85+",colorVector)
 # geographic sense.
 region1 <- c("Skåne","Blekinge")
 region2 <- c("Kalmar","Kronoberg","Halland")
-region3 <- c("Gotland","Jönköping","VästraGötaland","Östergötland")
+region3 <- c("Gotland","Jönköping","Västra Götaland","Östergötland")
 region4 <- c("Södermanland","Örebro","Värmland")
 region5 <- c("Stockholm","Västmanland","Uppsala")
 region6 <- c("Dalarna","Gävleborg")
@@ -213,19 +192,19 @@ region8 <- c("Västerbotten","Norrbotten")
 allRegions <- list(region1,region2,region3,region4,region5,region6,region7,region8)
 
 # Plots for men
-for(x in allCounties){
+for(x in allRegions){
   countyComparisonTime(nonMelanomaRates,x,"85+",colorVector)
 }
 
 # Plots for women
-for(x in allCounties){
+for(x in allRegions){
   countyComparisonTime(nonMelanomaRates,x,"85+",colorVector)
 }
 
 sumGroups<-function(subCancerData){
   # input: "subCancerData" is a data.frame, in our case we will let it be a subset of a
   # larger data.frame
-   
+  
   # output: returns a vector whose elements are the sums of all the cases per 100 000 
   # inhabitants for all our age groups in a given year, e.g. groups 2, 7, 12, ... , 85+
   # summed together for all the years 1970,...,2015
@@ -237,7 +216,7 @@ sumGroups<-function(subCancerData){
   for(i in 1:n){
     currentYear <- subCancerData[which(subCancerData$years == yearVec[i]),]
     temp <- head(currentYear,1)
-    temp$cases <- sum(head(currentYear$cases,18))
+    temp$cases <- sum(head(currentYear$cases,length(levels(subCancerData$age))))
     res[i] <- temp$cases
   }
   return(res)
@@ -251,8 +230,8 @@ sexComparison <- function(dataFrame,county,ageGroup){
   # output: Produces a line plot showing the number of cases per 100 000 inhabitants for
   # both sexes
   
-  men <- dataFrame[which(dataFrame$sexInd == "Men" & dataFrame$counties == county & dataFrame$age == ageGroup),]
-  women <- dataFrame[which(dataFrame$sexInd == "Women" & dataFrame$counties == county & dataFrame$age == ageGroup),]
+  men <- dataFrame[which(dataFrame$sex == "Men" & dataFrame$counties == county & dataFrame$age == ageGroup),]
+  women <- dataFrame[which(dataFrame$sex == "Women" & dataFrame$counties == county & dataFrame$age == ageGroup),]
   menCount <- sumGroups(men)
   womenCount <- sumGroups(women)
   yearVec <- rev(unique(dataFrame$years))
@@ -267,48 +246,10 @@ sexComparison <- function(dataFrame,county,ageGroup){
   legend('topleft',legend=c("Men","Women"),col=c("blue","red"),pch=1,lty=c(1,1))
 }
 
-sexComparison(nonMelanomaRates,"Halland","85+")
-sexComparison(nonMelanomaRates,"Halland","45-49")
+comparisonRegions <- c("Halland", "Sweden", "Skåne", "Västra Götaland")
 
-sexComparison(nonMelanomaRates,"Sweden","85+")
-sexComparison(nonMelanomaRates,"Sweden","45-49")
-
-sexComparison(nonMelanomaRates,"Skåne","85+")
-sexComparison(nonMelanomaRates,"Skåne","45-49")
-
-sexComparison(nonMelanomaRates,"VästraGötaland","85+")
-sexComparison(nonMelanomaRates,"VästraGötaland","45-49")
-
-
-
-for(x in allCounties){
-  sexComparison(nonMelanomaRates,x,"85+")
-}
-
-for(x in allCounties){
-  sexComparison(nonMelanomaRates,x,"80-84")
-}
-
-for(x in allCounties){
-  sexComparison(nonMelanomaRates,x,"75-79")
-}
-
-for(x in allCounties){
-  sexComparison(nonMelanomaRates,x,"70-74")
-}
-
-for(x in allCounties){
-  sexComparison(nonMelanomaRates,x,"65-69")
-}
-
-for(x in allCounties){
-  sexComparison(nonMelanomaRates,x,"60-64")
-}
-
-for(x in allCounties){
-  sexComparison(nonMelanomaRates,x,"55-59")
-}
-
-for(x in allCounties){
-  sexComparison(nonMelanomaRates,x,"50-54")
+for(x in lst[11:18]){
+  for(y in allCounties){
+    sexComparison(nonMelanomaRates,y,x)
+  }
 }
