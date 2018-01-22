@@ -12,13 +12,13 @@ formatDF<-function(dataFrame){
   nonSex[nrow(nonSex)+1:nrow(nonSex),] <- nonSex
   
   # Convert "Year" to numeric
-  # Blir ett fel här som sedan kommer och hemsöker dig i funktionerna, ska ge talen 1970-2015 men ger 1-46
+  # Blir ett fel hÃ¤r som sedan kommer och hemsÃ¶ker dig i funktionerna, ska ge talen 1970-2015 men ger 1-46
   nonSex$Year <- as.numeric(nonSex$Year) + rep(1969,length(nonSex$Year))
   #print(as.numeric(unique(nonSex$Year)))
   
   ageGroupFormat <- function(ageString){
     #print(nchar(ageString)) #nchar(ageString) is NA
-    # Lägg till en if-sats som tar hand om "85+"
+    # LÃ¤gg till en if-sats som tar hand om "85+"
     if(nchar(ageString) == 2){
       # For the youngest groups
       return(paste(substr(ageString,1,1),"-",substr(ageString,2,2),sep=""))
@@ -36,13 +36,13 @@ formatDF<-function(dataFrame){
   nonSex$Age <- as.character(res$Age)
   nonSex$Age <- as.factor(sapply(nonSex$Age,ageGroupFormat))
   #nonSex$Age <- toString(nonSex$Age)
-  nonSex$Age <- as.factor(nonSex$Age)
+  #nonSex$Age <- as.factor(nonSex$Age)
   
   countyFormat <- function(countyString){
     if(countyString == "Riket"){
       return("Sweden")
     }
-    # Remove eventual " län" in the county name
+    # Remove eventual " lÃ¤n" in the county name
     countyName <- substr(countyString,1,nchar(countyString)-4)
     # Remove the last "s", e.g. "Hallands" becomes "Halland"
     if(substr(countyName,nchar(countyName),nchar(countyName)) == "s"){
@@ -55,10 +55,10 @@ formatDF<-function(dataFrame){
   nonSex$County <- as.factor(sapply(nonSex$County,countyFormat))
   
   # Format the response variables
-  # Blir fel någonstans längs de här raderna
+  # Blir fel nÃ¥gonstans lÃ¤ngs de hÃ¤r raderna
   #print(res$Men)
   #print(res$Women)
-  # res$Men, res$Women var för sig verkar funka men så fort du skapar "response" skiter det sig
+  # res$Men, res$Women var fÃ¶r sig verkar funka men sÃ¥ fort du skapar "response" skiter det sig
   #response <- c(res$Men,res$Women)
   #response <- gsub(",",".",response)
   #response <- gsub(" ","",response)
