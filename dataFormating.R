@@ -91,8 +91,8 @@ formatDF<-function(dataFrame){
 #kek2 <- read.csv("C:/Users/Sebastian/Dropbox/Melt/Revised/rates.csv",header=F,sep=";",skip=2,encoding="UTF-8")
 #kek2 <- formatDF(kek2)
 # Något går fel med länens namn, det som ska bli "VästraGötaland" blir bara "Västra"
-library(curl)
-kek2 <- formatDF(read.csv(curl("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/Revised/rates.csv"),
+#library(curl)
+#kek2 <- formatDF(read.csv(curl("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/Revised/rates.csv"),
                           header=F,sep=";",skip=2,encoding="UTF-8",stringsAsFactors = TRUE))
-print(typeof(kek2$age))
+#print(typeof(kek2$age))
                  
