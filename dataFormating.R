@@ -35,6 +35,9 @@ formatDF<-function(dataFrame){
   
   nonSex$Age <- as.character(res$Age)
   nonSex$Age <- as.factor(sapply(nonSex$Age,ageGroupFormat))
+  
+  # Temporarily added
+  nonSex$Age <- factor(nonSex$Age,levels=levels(nonSex$Age))
   #nonSex$Age <- toString(nonSex$Age)
   #nonSex$Age <- as.factor(nonSex$Age)
   
