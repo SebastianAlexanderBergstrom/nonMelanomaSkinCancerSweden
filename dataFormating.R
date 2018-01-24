@@ -14,48 +14,23 @@ formatDF<-function(dataFrame){
   nonSex$Year <- as.numeric(nonSex$Year) + rep(1969,length(nonSex$Year))
   
   ageGroupFormat <- function(ageString){
-    # For all these, add "factor(paste(...))
-    if(nchar(ageString) == 2){
-      # For the youngest groups
-      return(paste(substr(ageString,1,1),"-",substr(ageString,2,2),sep=""))
-    }
     if(substr(ageString,nchar(ageString),nchar(ageString)) == "+"){
       # Covers the "85+"-case
       return(substr(ageString,1,3))
     }
+    if(nchar(ageString) == 3){
+      # For the youngest groups
+      return(paste0(substr(ageString,1,1),"-",substr(ageString,3,3)))
+    }
     else{
       # For the other groups
-      #return(paste(substr(ageString,1,2),"-",substr(ageString,3,5),sep=""))
-      # The problem is probably here, when printing out all the characters you see that an extra "" has been
-      # added, it shouldn't be here. The problem lies in paste()
-      #print(ageString)
       return(paste0(substr(ageString,1,2),"-",substr(ageString,4,5)))
     }
   }
   
   nonSex$Age <- as.character(res$Age)
-  #nonSex$Age <- as.factor(sapply(nonSex$Age,ageGroupFormat))
   nonSex$Age <- sapply(nonSex$Age,ageGroupFormat)
-  
   nonSex$Age <- factor(nonSex$Age)
-  
-  print(levels(nonSex$Age))
-  #print(nchar(levels(nonSex$Age)[11]))
-  a <- levels(nonSex$Age)[11]
-  print(substr(a,1,1))
-  print(substr(a,2,2))
-  print(substr(a,3,3))
-  print(substr(a,4,4))
-  print(substr(a,5,5))
-  print(substr(a,6,6))
-  b<-"5054"
-  print(b)
-  print(substr(b,1,1))
-  print(substr(b,2,2))
-  print(substr(b,3,3))
-  print(substr(b,4,4))
-  c<-paste0(substr(b,1,2),"-",substr(b,3,4))
-  print(nchar(c))
   
   countyFormat <- function(countyString){
     if(countyString == "Riket"){
@@ -74,12 +49,6 @@ formatDF<-function(dataFrame){
   nonSex$County <- as.factor(sapply(nonSex$County,countyFormat))
   
   # Format the response variables
-  # res$Men, res$Women var för sig verkar funka men så fort du skapar "response" skiter det sig
-  #response <- c(res$Men,res$Women)
-  #response <- gsub(",",".",response)
-  #response <- gsub(" ","",response)
-  #response <- as.numeric(response)
-
   res$Men <- gsub(",",".",res$Men)
   res$Men <- gsub(" ","",res$Men)
   res$Men <- as.numeric(res$Men)
@@ -94,5 +63,3 @@ formatDF<-function(dataFrame){
   colnames(result) <- c("years","counties","age","sex","cases")
   return(result)
 }
-kek2<-read.csv("C:/Users/Sebastian/Dropbox/Melt/Revised/Allt3.csv",header=F,sep=";",skip=2,encoding="UTF-8")
-kek3<-formatDF(kek2)
