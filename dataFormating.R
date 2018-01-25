@@ -36,19 +36,19 @@ formatDF<-function(dataFrame){
     if(countyString == "Riket"){
       return("Sweden")
     }
-    # Remove eventual " län" in the county name
+    # Remove eventual " lÃ¤n" in the county name
     countyName <- substr(countyString,1,nchar(countyString)-4)
     # Remove the last "s", e.g. "Hallands" becomes "Halland"
     if(substr(countyName,nchar(countyName),nchar(countyName)) == "s"){
       countyName <- substr(countyName,1,nchar(countyName)-1)
     }
     # Remove non-latin symbols
-    countyName <- gsub("å","a",countyName)
-    countyName <- gsub("Å","A",countyName)
-    countyName <- gsub("Ä","a",countyName)
-    countyName <- gsub("Ö","O",countyName)
-    countyName <- gsub("ä","a",countyName)
-    countyName <- gsub("ö","o",countyName)
+    countyName <- gsub("Ã¥","a",countyName)
+    countyName <- gsub("Ã…","A",countyName)
+    countyName <- gsub("Ã„","a",countyName)
+    countyName <- gsub("Ã–","O",countyName)
+    countyName <- gsub("Ã¤","a",countyName)
+    countyName <- gsub("Ã¶","o",countyName)
     return(countyName[[1]])
   }
   
