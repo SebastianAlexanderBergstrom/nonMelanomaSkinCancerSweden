@@ -42,6 +42,13 @@ formatDF<-function(dataFrame){
     if(substr(countyName,nchar(countyName),nchar(countyName)) == "s"){
       countyName <- substr(countyName,1,nchar(countyName)-1)
     }
+    # Remove non-latin symbols
+    countyName <- gsub("å","a",countyName)
+    countyName <- gsub("Å","A",countyName)
+    countyName <- gsub("Ä","a",countyName)
+    countyName <- gsub("Ö","O",countyName)
+    countyName <- gsub("ä","a",countyName)
+    countyName <- gsub("ö","o",countyName)
     return(countyName[[1]])
   }
   
