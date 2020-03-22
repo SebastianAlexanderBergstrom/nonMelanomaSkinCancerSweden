@@ -1,4 +1,3 @@
-# Provar att köra utan att skriva själva filen.
 library(curl)
 source("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/master/dataFormating.R")
 nonMelanomaRates <- formatDF(read.csv(curl("https://raw.githubusercontent.com/SebastianAlexanderBergstrom/nonMelanomaSkinCancerSweden/master/rates.csv"),
@@ -36,7 +35,7 @@ timeDevelopment<-function(dataFrame,county,ageGroup){
 timeDevelopment(nonMelanomaRates,"Halland","85+")
 timeDevelopment(nonMelanomaRates,"Halland","50-54")
 timeDevelopment(nonMelanomaRates,"Sweden","85+")
-timeDevelopment(nonMelanomaRates,"Skåne","85+")
+timeDevelopment(nonMelanomaRates,"SkÃ¥ne","85+")
 timeDevelopment(nonMelanomaRates,"Norrbotten","85+")
 
 countyComparisonBarPlot <- function(dataFrame){
@@ -196,20 +195,20 @@ countyComparisonTime<-function(dataFrame,counties,ageGroup,colVec){
   legend('topleft',legend=counties,col=colVec,pch=1,lty=c(1,1))
 }
 
-countyComparisonTime(nonMelanomaRates,c("Halland", "Stockholm", "Skåne"),"85+",colorVector)
-countyComparisonTime(nonMelanomaRates,c("Blekinge", "Västerbotten", "Jönköping"),"70-74",colorVector)
+countyComparisonTime(nonMelanomaRates,c("Halland", "Stockholm", "SkÃ¥ne"),"85+",colorVector)
+countyComparisonTime(nonMelanomaRates,c("Blekinge", "VÃ¤sterbotten", "JÃ¶nkÃ¶ping"),"70-74",colorVector)
 countyComparisonTime(nonMelanomaRates,c("Halland","Blekinge"),"85+",colorVector)
 
 # The grouping of counties is arbitrary and can be done in other ways, I tried grouping them "horizontally" in a
 # geographic sense.
-region1 <- c("Skåne","Blekinge")
+region1 <- c("SkÃ¥ne","Blekinge")
 region2 <- c("Kalmar","Kronoberg","Halland")
-region3 <- c("Gotland","Jönköping","VästraGötaland","Östergötland")
-region4 <- c("Södermanland","Örebro","Värmland")
-region5 <- c("Stockholm","Västmanland","Uppsala")
-region6 <- c("Dalarna","Gävleborg")
-region7 <- c("Jämtland", "Västernorrland")
-region8 <- c("Västerbotten","Norrbotten")
+region3 <- c("Gotland","JÃ¶nkÃ¶ping","VÃ¤straGÃ¶taland","Ã–stergÃ¶tland")
+region4 <- c("SÃ¶dermanland","Ã–rebro","VÃ¤rmland")
+region5 <- c("Stockholm","VÃ¤stmanland","Uppsala")
+region6 <- c("Dalarna","GÃ¤vleborg")
+region7 <- c("JÃ¤mtland", "VÃ¤sternorrland")
+region8 <- c("VÃ¤sterbotten","Norrbotten")
 allRegions <- list(region1,region2,region3,region4,region5,region6,region7,region8)
 
 # Plots for men
@@ -273,11 +272,11 @@ sexComparison(nonMelanomaRates,"Halland","45-49")
 sexComparison(nonMelanomaRates,"Sweden","85+")
 sexComparison(nonMelanomaRates,"Sweden","45-49")
 
-sexComparison(nonMelanomaRates,"Skåne","85+")
-sexComparison(nonMelanomaRates,"Skåne","45-49")
+sexComparison(nonMelanomaRates,"SkÃ¥ne","85+")
+sexComparison(nonMelanomaRates,"SkÃ¥ne","45-49")
 
-sexComparison(nonMelanomaRates,"VästraGötaland","85+")
-sexComparison(nonMelanomaRates,"VästraGötaland","45-49")
+sexComparison(nonMelanomaRates,"VÃ¤straGÃ¶taland","85+")
+sexComparison(nonMelanomaRates,"VÃ¤straGÃ¶taland","45-49")
 
 
 
